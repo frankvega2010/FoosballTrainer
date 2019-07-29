@@ -1,16 +1,20 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
+using Random = UnityEngine.Random;
 
 public class UIDisplayTime : MonoBehaviour
 {
+    public InputField breakTimeSet;
     public AudioSource goSound;
     public AudioSource countdownSound;
     public Text infoText;
     public Text timeText;
+    public Text buttonText;
     public float timer;
     public int sleepTime;
     public bool isTimerON;
@@ -78,11 +82,18 @@ public class UIDisplayTime : MonoBehaviour
         isTimerON = !isTimerON;
         if (!isTimerON)
         {
+            buttonText.text = "Start";
             timer = initialTimer;
             isSleepON = false;
             ResetTime();
             ResetText();
             SetRandomShootValue();
+            goSound.Stop();
+            countdownSound.Stop();
+        }
+        else
+        {
+            buttonText.text = "Stop";
         }
     }
 
@@ -100,18 +111,12 @@ public class UIDisplayTime : MonoBehaviour
 
     private void ResetTime()
     {
-        minutes = 00;
-        seconds = Mathf.RoundToInt(initialTimer);
-        secondsF = 00;
-        miliSeconds = 00;
-        time = string.Format("{0:0}:{1:00}:{2:000}", minutes, seconds, miliSeconds);
-
-        timeText.text = time;
+        ResetTimer(Mathf.RoundToInt(initialTimer));
     }
 
     private void SetRandomShootValue()
     {
-        shootTime = Random.Range(0.0f, timer);
+        shootTime = Random.Range(0.1f, initialTimer);
     }
 
     private void Alert()
@@ -136,21 +141,68 @@ public class UIDisplayTime : MonoBehaviour
         if (!setOnce)
         {
             SetRandomShootValue();
+            ResetTimer(sleepTime);
 
-            minutes = 00;
-            seconds = sleepTime;
-            secondsF = 00;
-            miliSeconds = 00;
-            time = string.Format("{0:0}:{1:00}:{2:000}", minutes, seconds, miliSeconds);
-
-            timeText.text = time;
             infoText.text = "BREAK";
             infoText.color = Color.yellow;
             timeText.color = Color.yellow;
+
             timer = sleepTime;
+
             isSleepON = true;
             setOnce = true;
             isTimerON = true;
         }
+    }
+
+    private void ResetTimer(int value)
+    {
+        minutes = 00;
+        seconds = Mathf.RoundToInt(value);
+        secondsF = 00;
+        miliSeconds = 00;
+        time = string.Format("{0:0}:{1:00}:{2:000}", minutes, seconds, miliSeconds);
+
+        timeText.text = time;
+    }
+
+    public void SetBreakTime()
+    {
+        int newSleepTime = int.Parse(breakTimeSet.text);
+        if (newSleepTime < 1)
+        {
+            newSleepTime = 1;
+        }
+        else if (newSleepTime > 15)
+        {
+            newSleepTime = 15;
+        }
+
+        sleepTime = newSleepTime;
+        breakTimeSet.text = sleepTime.ToString();
+
+        if (sleepTime < 3)
+        {
+            countdownSound.volume = 0;
+        }
+        else
+        {
+            countdownSound.volume = 1;
+        }
+    }
+
+    public void Set15SecsTimer()
+    {
+        initialTimer = 15;
+        timer = initialTimer;
+        ResetTime();
+        SetRandomShootValue();
+    }
+    public void Set10SecsTimer()
+    {
+        initialTimer = 10;
+        timer = initialTimer;
+        ResetTime();
+        SetRandomShootValue();
     }
 }
