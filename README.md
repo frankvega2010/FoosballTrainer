@@ -1,4 +1,4 @@
-#Foosball Trainer
+# Foosball Trainer
 
 ### Simple Unity App made for a local Foosball Club (CMD) but it can work for players around the world!
 
