@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using GoogleMobileAds.Api;
 
-public class AdsStart : MonoBehaviour
+public class AdsStart : MonoBehaviourSingleton<AdsStart>
 {
     private BannerView bannerView;
 
