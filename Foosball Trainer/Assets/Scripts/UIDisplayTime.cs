@@ -26,20 +26,27 @@ public class UIDisplayTime : MonoBehaviour
     private string time;
     private int minutes;
     private int seconds;
+    private int newTimerValue;
     private float secondsF;
     private float miliSeconds;
 
-    private bool setOnce;
+    public bool setOnce;
     private bool playOnce;
+    private bool setNewValueOnce;
+    private bool canSetTimerOn;
 
     private void Start()
     {
+        newTimerValue = (int)timer;
         initialTimer = timer;
         timer = initialTimer;
         ResetTime();
         SetRandomShootValue();
+        SetSleepTime();
+        setOnce = false;
+        isTimerON = false;
     }
-
+    //
     // Update is called once per frame
     private void Update()
     {
@@ -82,12 +89,15 @@ public class UIDisplayTime : MonoBehaviour
         isTimerON = !isTimerON;
         if (!isTimerON)
         {
-            buttonText.text = "Start";
-            timer = initialTimer;
-            isSleepON = false;
+            isTimerON = false;
+            playOnce = false;
+            setOnce = false;
+            isSleepON = true;
+            canSetTimerOn = false;
             ResetTime();
-            ResetText();
             SetRandomShootValue();
+            SetSleepTime();
+            buttonText.text = "Start";
             goSound.Stop();
             countdownSound.Stop();
         }
@@ -111,7 +121,16 @@ public class UIDisplayTime : MonoBehaviour
 
     private void ResetTime()
     {
-        ResetTimer(Mathf.RoundToInt(initialTimer));
+        if (!isSleepON)
+        {
+            initialTimer = newTimerValue;
+            timer = initialTimer;
+            ResetTimer(Mathf.RoundToInt(initialTimer));
+        }
+        else
+        {
+            SetSleepTime();
+        }
     }
 
     private void SetRandomShootValue()
@@ -126,6 +145,7 @@ public class UIDisplayTime : MonoBehaviour
         infoText.text = "SHOOT";
         setOnce = false;
         isTimerON = false;
+        canSetTimerOn = true;
         Invoke("SetSleepTime", 0.6f);
     }
 
@@ -151,7 +171,11 @@ public class UIDisplayTime : MonoBehaviour
 
             isSleepON = true;
             setOnce = true;
-            isTimerON = true;
+            if (canSetTimerOn)
+            {
+                isTimerON = true;
+            }
+            
         }
     }
 
@@ -168,41 +192,50 @@ public class UIDisplayTime : MonoBehaviour
 
     public void SetBreakTime()
     {
-        int newSleepTime = int.Parse(breakTimeSet.text);
-        if (newSleepTime < 1)
+        if (!isTimerON)
         {
-            newSleepTime = 1;
-        }
-        else if (newSleepTime > 15)
-        {
-            newSleepTime = 15;
-        }
+            int newSleepTime = int.Parse(breakTimeSet.text);
+            if (newSleepTime < 1)
+            {
+                newSleepTime = 1;
+            }
+            else if (newSleepTime > 15)
+            {
+                newSleepTime = 15;
+            }
 
-        sleepTime = newSleepTime;
-        breakTimeSet.text = sleepTime.ToString();
+            sleepTime = newSleepTime;
+            breakTimeSet.text = sleepTime.ToString();
 
-        if (sleepTime < 3)
-        {
-            countdownSound.volume = 0;
+            if (sleepTime < 3)
+            {
+                countdownSound.volume = 0;
+            }
+            else
+            {
+                countdownSound.volume = 1;
+            }
+            setOnce = false;
+            SetSleepTime();
         }
         else
         {
-            countdownSound.volume = 1;
+            breakTimeSet.text = "";
         }
     }
 
     public void Set15SecsTimer()
     {
-        initialTimer = 15;
-        timer = initialTimer;
-        ResetTime();
-        SetRandomShootValue();
+        if (!isTimerON)
+        {
+            newTimerValue = 15;
+        }
     }
     public void Set10SecsTimer()
     {
-        initialTimer = 10;
-        timer = initialTimer;
-        ResetTime();
-        SetRandomShootValue();
+        if (!isTimerON)
+        {
+            newTimerValue = 10;
+        }
     }
 }
